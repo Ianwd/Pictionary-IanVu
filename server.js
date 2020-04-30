@@ -12,6 +12,8 @@ const server = express()
 
 const io = socketIO(server);
 
+let users = [];
+
 io.on('connection', (socket) => {
     console.log('A new user joined the game');
 
@@ -21,14 +23,26 @@ io.on('connection', (socket) => {
 function onConnection(socket) {
     socket.on('username', username => {
         console.log('Player name:', username);
+        socket.username = username;
+        users.push(socket);
+        sendUsers();
     });
 
     socket.on('disconnect', () => {
         console.log('A user left the game');
+        users.filter(user => {
+            return user !== socket;
+        });
+        sendUsers();
     });
 
     socket.on('line', data => {
         socket.broadcast.emit('line', data);
     });
+}
 
+function sendUsers () {
+    io.emit('users', users.map(user => {
+        return user.username;
+    }));
 }

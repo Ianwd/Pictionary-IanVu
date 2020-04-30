@@ -61,6 +61,7 @@
         }
 
         function mouseDragged () {
+            if (!isActive) return;
             strokeWeight(weightInput.value);
             stroke(colorInput.value);
             line(mouseX, mouseY, pmouseX, pmouseY);
@@ -72,7 +73,6 @@
                 pmouseY,
                 weight: weightInput.value,
                 color: colorInput.value
-
             });
         }
 
@@ -85,11 +85,28 @@
         const usersList = document.querySelector('.js-users');
         socket.on('users', data => {
             usersList.innerHTML = '';
-            data.forEach(username => {
+            console.log(data);
+            data.forEach(user => {
                 const li = document.createElement('li');
-                li.innerHTML = username;
+                if (user.isActive) {
+                    li.innerHTML = `<b>${user.usename}</b>`;
+                } else {
+                    li.innerHTML = user.username;
+                }
                 usersList.appendChild(li);
+
+                if (username === user.username) {
+                    isActive = user.isActive;
+                }
             });
+        });
+
+        socket.on('clear', () => {
+            clear();
+        });
+
+        socket.on('word', word => {
+            alert(word);
         });
     </script>
 </body>
